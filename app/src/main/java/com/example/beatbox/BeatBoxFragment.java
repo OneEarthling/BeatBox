@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +21,7 @@ import java.util.List;
 
 public class BeatBoxFragment extends Fragment {
     private BeatBox mBeatBox;
+    private SeekBar mSeekBarSpeed;
 
     public static BeatBoxFragment newInstance(){
         return new BeatBoxFragment();
@@ -27,6 +30,7 @@ public class BeatBoxFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
 
         mBeatBox = new BeatBox(getActivity());
     }
@@ -38,8 +42,40 @@ public class BeatBoxFragment extends Fragment {
 
         binding.recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),3));
         binding.recyclerView.setAdapter(new SoundAdapter(mBeatBox.getSounds()));
-        return binding.getRoot();
 
+        mSeekBarSpeed = binding.getRoot().findViewById(R.id.seek_bar);
+//        mSeekBarSpeed = binding.seekBar;
+        final TextView tv = binding.playbackSpeedTv;
+        mSeekBarSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tv.setText("Playback Speed: " + String.valueOf((progress + 50)/ 100.0f));
+                mBeatBox.setSpeed((float)(progress + 50) / 100.0f);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mBeatBox.release();
     }
 
     private class SoundHolder extends RecyclerView.ViewHolder{
@@ -81,5 +117,8 @@ public class BeatBoxFragment extends Fragment {
         public int getItemCount() {
             return mSounds.size();
         }
+
+
     }
+
 }
